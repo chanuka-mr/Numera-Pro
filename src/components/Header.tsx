@@ -1,15 +1,18 @@
 import logo from '../assets/logo.svg'
+import type { Theme } from '../hooks/useTheme'
 import { Icon } from './Icon'
 
 interface HeaderProps {
   historyCount: number
   drawerOpen: boolean
+  theme: Theme
   onToggleHistory: () => void
+  onToggleTheme: () => void
 }
 
-export function Header({ historyCount, drawerOpen, onToggleHistory }: HeaderProps) {
+export function Header({ historyCount, drawerOpen, theme, onToggleHistory, onToggleTheme }: HeaderProps) {
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-surface-container-lowest/90 backdrop-blur-xl border-b border-outline-variant/30 shadow-[0_1px_8px_rgba(0,0,0,0.4)]">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-surface-container-lowest/90 backdrop-blur-xl border-b border-outline-variant/30 shadow-header">
       <div className="h-16 px-space-lg flex items-center justify-between gap-space-md">
         <div className="flex items-center gap-space-md">
           <div className="flex items-center gap-space-sm">
@@ -39,9 +42,11 @@ export function Header({ historyCount, drawerOpen, onToggleHistory }: HeaderProp
           </div>
           <button
             aria-label="Toggle Dark/Light Mode"
-            className="p-2 rounded-md bg-surface-container-low hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors flex items-center justify-center"
+            className="p-2 rounded-md bg-surface-container-low hover:bg-surface-container-high transition-colors flex items-center justify-center text-amber-500 hover:text-amber-600"
+            onClick={onToggleTheme}
+            title={theme === 'light' ? 'Light Mode Active' : 'Dark Mode Active'}
           >
-            <Icon className="text-[20px]" name="dark_mode" />
+            <Icon className="text-[20px]" name={theme === 'light' ? 'light_mode' : 'dark_mode'} />
           </button>
         </div>
       </div>

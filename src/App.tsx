@@ -3,6 +3,7 @@ import { Calculator } from './components/Calculator'
 import { Header } from './components/Header'
 import { HistoryPanel, type HistoryItem } from './components/HistoryPanel'
 import { useCalculator } from './hooks/useCalculator'
+import { useTheme } from './hooks/useTheme'
 
 const HISTORY_KEY = 'numera-pro:history'
 const HISTORY_LIMIT = 50
@@ -42,6 +43,7 @@ function App() {
   }, [])
 
   const calc = useCalculator(recordHistory)
+  const { theme, toggleTheme } = useTheme()
 
   const handleRestore = useCallback(
     (expr: string, res: string) => calc.restore(expr, res),
@@ -56,6 +58,8 @@ function App() {
         drawerOpen={drawerOpen}
         historyCount={history.length}
         onToggleHistory={handleToggleDrawer}
+        onToggleTheme={toggleTheme}
+        theme={theme}
       />
       <div className={`transition-[padding] duration-300 ${drawerOpen ? 'pr-80' : 'pr-0'}`}>
         <main className="w-full pt-16 bg-surface min-h-screen">

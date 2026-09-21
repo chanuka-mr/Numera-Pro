@@ -9,10 +9,8 @@ interface KeyDef {
   span?: boolean
 }
 
-const KEY_SHADOW =
-  'shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_2px_0_#0b1326,0_3px_6px_rgba(0,0,0,0.35)]'
-const KEY_ACTIVE =
-  'active:translate-y-[2px] active:shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_0px_0_#0b1326,0_1px_3px_rgba(0,0,0,0.35)]'
+const KEY_SHADOW = 'shadow-key'
+const KEY_ACTIVE = 'active:translate-y-[2px] active:shadow-key-pressed'
 
 const BASE_KEY = `py-3.5 rounded-md flex items-center justify-center transition-all select-none ${KEY_SHADOW} ${KEY_ACTIVE}`
 
@@ -73,8 +71,9 @@ const ROWS: KeyDef[][] = [
   [
     {
       key: 'NEG',
+      title: 'Toggle sign',
       className: `${KEY_SMALL} text-on-surface font-semibold`,
-      label: '±',
+      label: '+/−',
     },
     { key: '0', className: KEY_CHAR },
     { key: '.', className: `${KEY_CHAR} font-bold` },
@@ -100,7 +99,7 @@ interface KeypadProps {
 
 export function Keypad({ onPress }: KeypadProps) {
   return (
-    <div className="bg-surface-container p-space-md rounded-xl border border-white/5 flex flex-col gap-space-sm">
+    <div className="bg-surface-container p-space-md rounded-xl border border-card-border flex flex-col gap-space-sm">
       {ROWS.map((row, rowIndex) => (
         <div className="grid grid-cols-5 gap-space-sm" key={`row-${rowIndex}`}>
           {row.map((keyDef) => (

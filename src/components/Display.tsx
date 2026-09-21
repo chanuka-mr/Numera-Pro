@@ -11,7 +11,7 @@ interface DisplayProps {
 
 export function Display({ expression, result, error, onCopy, onRecallAnswer }: DisplayProps) {
   return (
-    <div className="bg-surface-container-lowest p-space-lg rounded-xl border border-white/5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] flex flex-col justify-between gap-space-md relative overflow-hidden">
+    <div className="bg-surface-container-lowest p-space-lg rounded-xl border border-card-border shadow-card flex flex-col justify-between gap-space-md relative overflow-hidden">
       <div className="flex items-center justify-between z-10">
         <div className="flex items-center gap-space-xs"></div>
         <div className="flex items-center gap-space-xs">

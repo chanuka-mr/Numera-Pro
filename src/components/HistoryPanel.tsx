@@ -15,7 +15,7 @@ interface HistoryPanelProps {
 
 export function HistoryPanel({ items, onClear, onClose, onRestore }: HistoryPanelProps) {
   return (
-    <aside className="fixed right-0 top-16 bottom-0 w-80 bg-surface-container-low border-l border-outline-variant/30 flex flex-col z-40 shadow-[-4px_0_24px_rgba(0,0,0,0.3)]">
+    <aside className="fixed right-0 top-16 bottom-0 w-80 bg-surface-container-low border-l border-outline-variant/30 flex flex-col z-40 shadow-drawer">
       <div className="px-space-lg py-space-md border-b border-outline-variant/30 flex items-center justify-between bg-surface-container/40">
         <div className="flex items-center gap-space-xs">
           <Icon className="text-primary text-[18px]" name="receipt_long" />
