@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react'
+import { OPERATOR_RE, negateLast, planOperator, startEntry } from '../lib/entry'
 import { EvaluateError, evaluate } from '../lib/evaluate'
-import { formatNumber } from '../lib/format'
+import { formatNumber, roundResult } from '../lib/format'
 
 export interface CalcErrorState {
   message: string
@@ -19,6 +20,20 @@ export function useCalculator(onRecord: (expr: string, res: string) => void) {
   const [justEvaluated, setJustEvaluated] = useState(false)
   const lastResultRef = useRef('0')
 
+  const evaluateLive = useCallback((expr: string) => {
+    if (!expr.trim()) {
+      setResult('0')
+      return
+    }
+    try {
+      const value = roundResult(evaluate(expr))
+      lastResultRef.current = value.toString()
+      setResult(formatNumber(value))
+    } catch {
+      // keep the previous result while typing
+    }
+  }, [])
+
   const resetAll = useCallback(() => {
     setExpression('')
     setResult('0')
@@ -34,67 +49,101 @@ export function useCalculator(onRecord: (expr: string, res: string) => void) {
       setJustEvaluated(false)
       return
     }
-    setExpression((prev) => prev.slice(0, -1))
-  }, [justEvaluated])
+    const next = expression.slice(0, -1)
+    setExpression(next)
+    evaluateLive(next)
+  }, [justEvaluated, expression, evaluateLive])
 
-  const pressKey = useCallback((key: string) => {
-    setError(null)
+  const pressKey = useCallback(
+    (key: string) => {
+      const apply = (next: string) => {
+        setExpression(next)
+        evaluateLive(next)
+      }
 
-    if (key === 'AC') {
-      setExpression('')
-      setResult('0')
-      setJustEvaluated(false)
-      return
-    }
-
-    if (key === 'C' || key === 'BACKSPACE') {
-      setExpression((prev) => prev.slice(0, -1))
-      setJustEvaluated(false)
-      return
-    }
-
-    if (key === '=') {
-      return
-    }
-
-    if (justEvaluated) {
-      if (/[0-9.(]/.test(key)) {
-        setJustEvaluated(false)
-        setExpression(key)
-        setResult('0')
+      if (error) {
+        if (key === 'AC') {
+          resetAll()
+          return
+        }
+        if (key === 'C' || key === 'BACKSPACE') {
+          setError(null)
+          setExpression('')
+          setResult('0')
+          setJustEvaluated(false)
+          return
+        }
+        if (/[0-9.(]/.test(key)) {
+          setError(null)
+          setJustEvaluated(false)
+          apply(startEntry('', key))
+        }
         return
       }
-      if (/[+\-*/^%]/.test(key)) {
-        setJustEvaluated(false)
-        setExpression(`${lastResultRef.current}${key}`)
+
+      setError(null)
+
+      if (key === 'AC') {
+        resetAll()
         return
       }
+
+      if (key === 'C' || key === 'BACKSPACE') {
+        backspace()
+        return
+      }
+
+      if (key === '=') {
+        return
+      }
+
       if (key === 'NEG') {
-        setJustEvaluated(false)
-        setExpression(`-(${lastResultRef.current})`)
+        if (justEvaluated) {
+          setJustEvaluated(false)
+          const raw = lastResultRef.current
+          apply(raw.startsWith('-') ? raw.slice(1) : `-${raw}`)
+          return
+        }
+        apply(negateLast(expression))
         return
       }
-    }
 
-    if (key === 'NEG') {
-      setExpression((prev) => {
-        if (prev.startsWith('-(') && prev.endsWith(')')) return prev.slice(2, -1)
-        return `-(${prev})`
-      })
-      return
-    }
-
-    setExpression((prev) => {
-      if (key === '.') {
-        const tokens = prev.split(/[()+*/^-]/)
-        const current = tokens[tokens.length - 1]
-        if (current.includes('.')) return prev
+      if (OPERATOR_RE.test(key)) {
+        if (justEvaluated) {
+          setJustEvaluated(false)
+          apply(`${lastResultRef.current}${key}`)
+          return
+        }
+        const action = planOperator(expression, key)
+        if (action.type === 'ignore') return
+        if (action.type === 'replace') {
+          apply(action.expression)
+          return
+        }
+        apply(`${expression}${key}`)
+        return
       }
-      return `${prev}${key}`
-    })
-  }, [justEvaluated])
+
+      if (key === '%') {
+        if (justEvaluated) return
+        if (!(expression && /[0-9)]$/.test(expression))) return
+        apply(`${expression}%`)
+        return
+      }
+
+      if (justEvaluated) {
+        setJustEvaluated(false)
+        apply(startEntry('', key))
+        return
+      }
+
+      apply(startEntry(expression, key))
+    },
+    [error, expression, justEvaluated, resetAll, backspace, evaluateLive],
+  )
 
   const runEvaluate = useCallback(() => {
+    if (error) return
     setError(null)
     if (!expression.trim()) {
       setResult('0')
@@ -102,9 +151,9 @@ export function useCalculator(onRecord: (expr: string, res: string) => void) {
       return
     }
     try {
-      const value = evaluate(expression)
-      const formatted = formatNumber(value)
-      lastResultRef.current = value.toString()
+      const rounded = roundResult(evaluate(expression))
+      const formatted = formatNumber(rounded)
+      lastResultRef.current = rounded.toString()
       setResult(formatted)
       setJustEvaluated(true)
       onRecord(expression, formatted)
@@ -114,13 +163,15 @@ export function useCalculator(onRecord: (expr: string, res: string) => void) {
       setError({ message: `Error: ${message}` })
       setJustEvaluated(false)
     }
-  }, [expression, onRecord])
+  }, [error, expression, onRecord])
 
   const recallAnswer = useCallback(() => {
     setError(null)
-    setExpression((prev) => `${prev}${lastResultRef.current}`)
     setJustEvaluated(false)
-  }, [])
+    const next = `${expression}${lastResultRef.current}`
+    setExpression(next)
+    evaluateLive(next)
+  }, [expression, evaluateLive])
 
   const restore = useCallback((expr: string, res: string) => {
     setError(null)
