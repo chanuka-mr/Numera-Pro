@@ -81,7 +81,7 @@ const ROWS: KeyDef[][] = [
     {
       key: '=',
       span: true,
-      className: 'col-span-2 bg-gradient-to-r from-primary-container to-primary text-on-primary font-keycap-primary text-keycap-primary font-bold gap-2',
+      className: 'col-span-2 bg-gradient-to-r from-secondary-container to-secondary text-on-secondary font-keycap-primary text-keycap-primary font-bold gap-2',
       label: (
         <>
           <span>=</span>

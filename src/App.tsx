@@ -1,27 +1,52 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Calculator } from './components/Calculator'
 import { Header } from './components/Header'
 import { HistoryPanel, type HistoryItem } from './components/HistoryPanel'
 import { useCalculator } from './hooks/useCalculator'
 
-const SEED_HISTORY: HistoryItem[] = [
-  { time: '14:32:08', expr: '2 * π * 6371 * 10^3', res: '4.003017e+7' },
-  { time: '14:28:45', expr: 'sin(45°) * sqrt(2)', res: '1.000000' },
-  { time: '14:15:10', expr: '1024 * 768 * 4 / 1024^2', res: '3.000000 MB' },
-]
+const HISTORY_KEY = 'numera-pro:history'
+const HISTORY_LIMIT = 50
+
+function loadHistory(): HistoryItem[] {
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY)
+    if (!raw) return []
+    const parsed: unknown = JSON.parse(raw)
+    if (!Array.isArray(parsed)) return []
+    return parsed.filter(
+      (item): item is HistoryItem =>
+        typeof item === 'object' &&
+        item !== null &&
+        typeof (item as HistoryItem).expr === 'string' &&
+        typeof (item as HistoryItem).res === 'string',
+    )
+  } catch {
+    return []
+  }
+}
 
 function App() {
-  const [history, setHistory] = useState<HistoryItem[]>(SEED_HISTORY)
+  const [history, setHistory] = useState<HistoryItem[]>(loadHistory)
   const [drawerOpen, setDrawerOpen] = useState(true)
 
+  useEffect(() => {
+    try {
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(history.slice(0, HISTORY_LIMIT)))
+    } catch {
+      // storage unavailable — history stays in-memory for this session
+    }
+  }, [history])
+
   const recordHistory = useCallback((expr: string, res: string) => {
-    const time = new Date().toTimeString().split(' ')[0]
-    setHistory((prev) => [{ time, expr, res }, ...prev])
+    setHistory((prev) => [{ expr, res }, ...prev].slice(0, HISTORY_LIMIT))
   }, [])
 
   const calc = useCalculator(recordHistory)
 
-  const handleRestore = useCallback((res: string) => calc.restore(res), [calc])
+  const handleRestore = useCallback(
+    (expr: string, res: string) => calc.restore(expr, res),
+    [calc],
+  )
   const handleClear = useCallback(() => setHistory([]), [])
   const handleToggleDrawer = useCallback(() => setDrawerOpen((open) => !open), [])
 

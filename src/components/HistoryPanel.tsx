@@ -1,7 +1,7 @@
+import { toDisplayExpression } from '../hooks/useCalculator'
 import { Icon } from './Icon'
 
 export interface HistoryItem {
-  time: string
   expr: string
   res: string
 }
@@ -10,7 +10,7 @@ interface HistoryPanelProps {
   items: HistoryItem[]
   onClear: () => void
   onClose: () => void
-  onRestore: (res: string) => void
+  onRestore: (expr: string, res: string) => void
 }
 
 export function HistoryPanel({ items, onClear, onClose, onRestore }: HistoryPanelProps) {
@@ -47,17 +47,16 @@ export function HistoryPanel({ items, onClear, onClose, onRestore }: HistoryPane
         {items.map((item, index) => (
           <div
             className="p-space-sm rounded-md bg-surface-container hover:bg-surface-container-high border border-outline-variant/20 transition-colors cursor-pointer group"
-            key={`${item.time}-${index}`}
-            onClick={() => onRestore(item.res)}
+            key={`${index}-${item.res}`}
+            onClick={() => onRestore(item.expr, item.res)}
           >
-            <div className="flex items-center justify-between text-outline text-[11px] font-body-mono mb-1">
-              <span>{item.time}</span>
-              <span className="opacity-0 group-hover:opacity-100 text-primary transition-opacity">
+            <div className="flex justify-end mb-1">
+              <span className="text-primary text-[11px] font-body-mono opacity-0 group-hover:opacity-100 transition-opacity">
                 Restore
               </span>
             </div>
             <div className="font-display-expression text-body-mono text-on-surface-variant text-right truncate">
-              {item.expr}
+              {toDisplayExpression(item.expr)}
             </div>
             <div className="font-body-mono text-keycap-secondary text-secondary text-right font-semibold">
               = {item.res}
