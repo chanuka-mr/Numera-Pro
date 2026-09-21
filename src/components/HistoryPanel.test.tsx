@@ -9,7 +9,7 @@ describe('HistoryPanel', () => {
     const user = userEvent.setup()
     const items: HistoryItem[] = [{ expr: '2*3', res: '6' }]
     render(
-      <HistoryPanel items={items} onClear={vi.fn()} onClose={vi.fn()} onRestore={onRestore} />,
+      <HistoryPanel items={items} onClear={vi.fn()} onClose={vi.fn()} onRestore={onRestore} open={true} />,
     )
     expect(screen.getByText('2×3')).toBeInTheDocument()
     expect(screen.getByText('= 6')).toBeInTheDocument()
@@ -22,7 +22,7 @@ describe('HistoryPanel', () => {
     const onClose = vi.fn()
     const user = userEvent.setup()
     render(
-      <HistoryPanel items={[{ expr: '1+1', res: '2' }]} onClear={onClear} onClose={onClose} onRestore={vi.fn()} />,
+      <HistoryPanel items={[{ expr: '1+1', res: '2' }]} onClear={onClear} onClose={onClose} onRestore={vi.fn()} open={true} />,
     )
     await user.click(screen.getByRole('button', { name: 'Clear History' }))
     expect(onClear).toHaveBeenCalledTimes(1)
@@ -31,7 +31,7 @@ describe('HistoryPanel', () => {
   })
 
   it('shows an empty state', () => {
-    render(<HistoryPanel items={[]} onClear={vi.fn()} onClose={vi.fn()} onRestore={vi.fn()} />)
+    render(<HistoryPanel items={[]} onClear={vi.fn()} onClose={vi.fn()} onRestore={vi.fn()} open={true} />)
     expect(screen.getByText('Ledger empty')).toBeInTheDocument()
   })
 })

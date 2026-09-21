@@ -99,7 +99,7 @@ interface KeypadProps {
 
 export function Keypad({ onPress }: KeypadProps) {
   return (
-    <div className="bg-surface-container p-space-md rounded-xl border border-card-border flex flex-col gap-space-sm">
+    <div className="bg-surface-container p-2.5 sm:p-space-md rounded-xl border border-card-border flex flex-col gap-2 sm:gap-space-sm">
       {ROWS.map((row, rowIndex) => (
         <div className="grid grid-cols-5 gap-space-sm" key={`row-${rowIndex}`}>
           {row.map((keyDef) => (

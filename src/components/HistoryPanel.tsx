@@ -8,14 +8,19 @@ export interface HistoryItem {
 
 interface HistoryPanelProps {
   items: HistoryItem[]
+  open: boolean
   onClear: () => void
   onClose: () => void
   onRestore: (expr: string, res: string) => void
 }
 
-export function HistoryPanel({ items, onClear, onClose, onRestore }: HistoryPanelProps) {
+export function HistoryPanel({ items, open, onClear, onClose, onRestore }: HistoryPanelProps) {
   return (
-    <aside className="fixed right-0 top-16 bottom-0 w-80 bg-surface-container-low border-l border-outline-variant/30 flex flex-col z-40 shadow-drawer">
+    <aside
+      aria-hidden={!open}
+      className={`fixed right-0 top-16 bottom-0 w-full md:w-80 bg-surface-container-low border-l border-outline-variant/30 flex flex-col z-40 shadow-drawer transition-transform duration-300 ease-out ${open ? 'translate-x-0' : 'translate-x-full'}`}
+      inert={!open}
+    >
       <div className="px-space-lg py-space-md border-b border-outline-variant/30 flex items-center justify-between bg-surface-container/40">
         <div className="flex items-center gap-space-xs">
           <Icon className="text-primary text-[18px]" name="receipt_long" />

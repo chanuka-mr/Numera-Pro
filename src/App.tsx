@@ -28,7 +28,7 @@ function loadHistory(): HistoryItem[] {
 
 function App() {
   const [history, setHistory] = useState<HistoryItem[]>(loadHistory)
-  const [drawerOpen, setDrawerOpen] = useState(true)
+  const [drawerOpen, setDrawerOpen] = useState(() => window.innerWidth >= 768)
 
   useEffect(() => {
     try {
@@ -46,7 +46,10 @@ function App() {
   const { theme, toggleTheme } = useTheme()
 
   const handleRestore = useCallback(
-    (expr: string, res: string) => calc.restore(expr, res),
+    (expr: string, res: string) => {
+      calc.restore(expr, res)
+      if (window.innerWidth < 768) setDrawerOpen(false)
+    },
     [calc],
   )
   const handleClear = useCallback(() => setHistory([]), [])
@@ -54,6 +57,13 @@ function App() {
 
   return (
     <>
+      {drawerOpen && (
+        <div
+          aria-hidden="true"
+          className="fixed inset-0 top-16 z-30 bg-black/40 md:hidden"
+          onClick={handleToggleDrawer}
+        />
+      )}
       <Header
         drawerOpen={drawerOpen}
         historyCount={history.length}
@@ -61,23 +71,22 @@ function App() {
         onToggleTheme={toggleTheme}
         theme={theme}
       />
-      <div className={`transition-[padding] duration-300 ${drawerOpen ? 'pr-80' : 'pr-0'}`}>
-        <main className="w-full pt-16 bg-surface min-h-screen">
-          <div className="p-space-lg lg:p-space-xl max-w-7xl mx-auto w-full flex flex-col gap-space-lg">
+      <div className={`transition-[padding] duration-300 ${drawerOpen ? 'md:pr-80 pr-0' : 'pr-0'}`}>
+        <main className="w-full pt-16 bg-surface min-h-dvh">
+          <div className="p-space-lg lg:p-space-xl max-w-7xl mx-auto w-full flex flex-col gap-space-lg pb-[env(safe-area-inset-bottom)]">
             <div className="flex justify-center w-full">
               <Calculator calc={calc} />
             </div>
           </div>
         </main>
       </div>
-      {drawerOpen && (
-        <HistoryPanel
-          items={history}
-          onClear={handleClear}
-          onClose={handleToggleDrawer}
-          onRestore={handleRestore}
-        />
-      )}
+      <HistoryPanel
+        items={history}
+        onClear={handleClear}
+        onClose={handleToggleDrawer}
+        onRestore={handleRestore}
+        open={drawerOpen}
+      />
     </>
   )
 }

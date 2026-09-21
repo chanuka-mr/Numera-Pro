@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it } from 'vitest'
 import App from './App'
@@ -20,6 +20,7 @@ describe('App', () => {
   beforeEach(() => {
     localStorage.clear()
     document.documentElement.className = 'dark'
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1024 })
   })
 
   it('records an evaluated expression to history and persists it', async () => {
@@ -97,5 +98,17 @@ describe('App', () => {
     render(<App />)
     expect(document.documentElement.classList.contains('light')).toBe(true)
     expect(document.documentElement.classList.contains('dark')).toBe(false)
+  })
+
+  it('closes the drawer on mobile after restoring an entry', async () => {
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 375 })
+    const user = userEvent.setup()
+    render(<App />)
+    await typeText(user, '2+3')
+    await user.click(screen.getByRole('button', { name: /Evaluate/ }))
+    await user.click(screen.getByRole('button', { name: 'Toggle History Panel' }))
+    const aside = document.querySelector('aside')
+    await user.click(within(aside as HTMLElement).getByText('2+3'))
+    expect(aside?.className).toContain('translate-x-full')
   })
 })
