@@ -61,8 +61,6 @@ Open the URL printed by Vite (default `http://localhost:5173`).
 | `npm run dev` | Start the Vite dev server |
 | `npm run build` | Type-check and build for production (`dist/`) |
 | `npm run preview` | Preview the production build locally |
-| `npm run test` | Run the Vitest suite once |
-| `npm run test:watch` | Run tests in watch mode |
 | `npm run lint` | ESLint over the project |
 
 ## Tech stack
@@ -70,7 +68,6 @@ Open the URL printed by Vite (default `http://localhost:5173`).
 - **React 19** with TypeScript (strict)
 - **Vite 8** as the build tool
 - **Tailwind CSS v4** — theming through CSS `@theme` tokens in `src/index.css`; the light palette is layered as `html.light` variable overrides, so switching themes requires no component changes
-- **Vitest + React Testing Library** for unit/component tests (co-located `*.test.ts(x)`)
 
 ## Project structure
 
@@ -82,12 +79,9 @@ calculator-app/
 │   ├── lib/              # pure logic: evaluate, entry rules, formatting
 │   ├── hooks/            # useCalculator, useTheme
 │   ├── components/       # Calculator, Display, Keypad, Header, HistoryPanel, Icon
-│   │   └── *.test.tsx    # co-located component tests
-│   ├── test/setup.ts     # Vitest DOM setup
 │   ├── App.tsx
 │   └── index.css         # Tailwind v4 @theme tokens + light-mode overrides
 ├── index.html
-├── vitest.config.ts
 └── tsconfig.*.json
 ```
 
