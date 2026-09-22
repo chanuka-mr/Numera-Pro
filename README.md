@@ -1,6 +1,6 @@
 # Numera Pro
 
-A modern, keyboard-friendly calculator built with React, TypeScript, and Tailwind CSS. It features a dark/light theme, live-preview evaluation, and a persistent history ledger.
+A modern, keyboard-friendly calculator built with React, TypeScript, and Tailwind CSS. It features a dark/light theme, evaluate-on-equals behavior, and a persistent history ledger.
 
 ## Screenshots
 
@@ -22,7 +22,7 @@ A modern, keyboard-friendly calculator built with React, TypeScript, and Tailwin
 
 ## Features
 
-- **Live preview** — the result recomputes on every keystroke as you type.
+- **Evaluate on demand** — the answer is shown only when you press `=` (or `Enter`); typing edits the live formula without touching the result.
 - **Standard calculator behaviors** — operator chaining, replacement, and ignore rules; `NEG` (toggle sign), `%`, and `^` (power) support; `()` grouping.
 - **Precise entry rules** — up to 12 entry digits, leading-zero handling, single decimal point.
 - **Error handling** — division by zero and malformed expressions show an inline error and auto-reset the display.
