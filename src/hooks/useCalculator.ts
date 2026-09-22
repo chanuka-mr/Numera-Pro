@@ -20,20 +20,6 @@ export function useCalculator(onRecord: (expr: string, res: string) => void) {
   const [justEvaluated, setJustEvaluated] = useState(false)
   const lastResultRef = useRef('0')
 
-  const evaluateLive = useCallback((expr: string) => {
-    if (!expr.trim()) {
-      setResult('0')
-      return
-    }
-    try {
-      const value = roundResult(evaluate(expr))
-      lastResultRef.current = value.toString()
-      setResult(formatNumber(value))
-    } catch {
-      // keep the previous result while typing
-    }
-  }, [])
-
   const resetAll = useCallback(() => {
     setExpression('')
     setResult('0')
@@ -51,14 +37,12 @@ export function useCalculator(onRecord: (expr: string, res: string) => void) {
     }
     const next = expression.slice(0, -1)
     setExpression(next)
-    evaluateLive(next)
-  }, [justEvaluated, expression, evaluateLive])
+  }, [justEvaluated, expression])
 
   const pressKey = useCallback(
     (key: string) => {
       const apply = (next: string) => {
         setExpression(next)
-        evaluateLive(next)
       }
 
       if (error) {
@@ -139,7 +123,7 @@ export function useCalculator(onRecord: (expr: string, res: string) => void) {
 
       apply(startEntry(expression, key))
     },
-    [error, expression, justEvaluated, resetAll, backspace, evaluateLive],
+    [error, expression, justEvaluated, resetAll, backspace],
   )
 
   const runEvaluate = useCallback(() => {
@@ -168,10 +152,8 @@ export function useCalculator(onRecord: (expr: string, res: string) => void) {
   const recallAnswer = useCallback(() => {
     setError(null)
     setJustEvaluated(false)
-    const next = `${expression}${lastResultRef.current}`
-    setExpression(next)
-    evaluateLive(next)
-  }, [expression, evaluateLive])
+    setExpression(`${expression}${lastResultRef.current}`)
+  }, [expression])
 
   const restore = useCallback((expr: string, res: string) => {
     setError(null)

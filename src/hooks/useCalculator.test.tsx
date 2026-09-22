@@ -19,23 +19,24 @@ describe('toDisplayExpression', () => {
   })
 })
 
-describe('live result preview', () => {
-  it('updates the result on every keystroke', () => {
-    const { press, result } = setup()
+describe('result updates only on equals', () => {
+  it('keeps the result unchanged while typing', () => {
+    const { press, evaluate, result } = setup()
     press('1')
     press('0')
-    expect(result.current.result).toBe('10')
+    expect(result.current.result).toBe('0')
     press('+')
-    expect(result.current.result).toBe('10')
     press('1')
-    expect(result.current.result).toBe('11')
+    expect(result.current.result).toBe('0')
     expect(result.current.expression).toBe('10+1')
     press('0')
-    expect(result.current.result).toBe('20')
+    expect(result.current.result).toBe('0')
     expect(result.current.expression).toBe('10+10')
+    evaluate()
+    expect(result.current.result).toBe('20')
   })
 
-  it('keeps the full formula visible while previewing', () => {
+  it('keeps the full formula visible while typing', () => {
     const { press, result } = setup()
     press('6')
     press('1')
@@ -43,11 +44,11 @@ describe('live result preview', () => {
     press('+')
     press('1')
     expect(result.current.expression).toBe('610+1')
-    expect(result.current.result).toBe('611')
+    expect(result.current.result).toBe('0')
   })
 
   it('rounds results to 12 significant digits', () => {
-    const { press, result } = setup()
+    const { press, evaluate, result } = setup()
     press('0')
     press('.')
     press('1')
@@ -55,11 +56,12 @@ describe('live result preview', () => {
     press('0')
     press('.')
     press('2')
+    evaluate()
     expect(result.current.result).toBe('0.3')
   })
 
-  it('previews percent math against the running total', () => {
-    const { press, result } = setup()
+  it('computes percent math against the running total on equals', () => {
+    const { press, evaluate, result } = setup()
     press('5')
     press('0')
     press('0')
@@ -69,15 +71,19 @@ describe('live result preview', () => {
     press('5')
     press('%')
     expect(result.current.expression).toBe('5000+15%')
+    expect(result.current.result).toBe('0')
+    evaluate()
     expect(result.current.result).toBe('5,750')
   })
 
-  it('previews powers', () => {
-    const { press, result } = setup()
+  it('computes powers on equals', () => {
+    const { press, evaluate, result } = setup()
     press('2')
     press('^')
     press('1')
     press('0')
+    expect(result.current.result).toBe('0')
+    evaluate()
     expect(result.current.result).toBe('1,024')
   })
 })
@@ -237,12 +243,12 @@ describe('NEG on operands', () => {
 })
 
 describe('error handling', () => {
-  it('freezes the preview on a mid-typing divide by zero', () => {
+  it('does not evaluate while typing a divide by zero', () => {
     const { press, result } = setup()
     press('6')
     press('/')
     press('0')
-    expect(result.current.result).toBe('6')
+    expect(result.current.result).toBe('0')
     expect(result.current.error).toBeNull()
   })
 
@@ -295,14 +301,14 @@ describe('error handling', () => {
 })
 
 describe('backspace', () => {
-  it('recomputes the preview while removing characters', () => {
+  it('edits the expression without touching the result', () => {
     const { press, result } = setup()
     press('5')
     press('+')
     press('3')
     press('BACKSPACE')
     expect(result.current.expression).toBe('5+')
-    expect(result.current.result).toBe('5')
+    expect(result.current.result).toBe('0')
     press('BACKSPACE')
     expect(result.current.expression).toBe('5')
   })
@@ -320,11 +326,13 @@ describe('backspace', () => {
 })
 
 describe('ANS recall', () => {
-  it('inserts the last live result', () => {
-    const { press, result } = setup()
+  it('inserts the last computed answer', () => {
+    const { press, evaluate, result } = setup()
     press('5')
     press('+')
     press('3')
+    evaluate()
+    expect(result.current.result).toBe('8')
     press('AC')
     act(() => result.current.recallAnswer())
     expect(result.current.expression).toBe('8')
